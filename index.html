@@ -215,7 +215,7 @@ background:#E53935;
 color:white;
 }
 
-.horas{
+.dias{
 font-weight:bold;
 color:#e53935;
 }
@@ -624,15 +624,17 @@ render();
 
 }
 
-function horasDecorridas(data){
+function diasDecorridos(data){
 
 let inicio=new Date(data);
+inicio.setHours(0,0,0,0);
 
 let agora=new Date();
+agora.setHours(0,0,0,0);
 
-let diff=(agora-inicio)/(1000*60*60);
+let diff=Math.floor((agora-inicio)/(1000*60*60*24));
 
-return diff.toFixed(1);
+return diff;
 
 }
 
@@ -694,6 +696,8 @@ X
 `).join('');
 
 }
+
+let intervaloAtualizacao = null;
 
 function visualizar(){
 
@@ -770,7 +774,7 @@ MANOBRAS PENDENTES
 <div>ALIMENTADOR</div>
 <div>RESPONSÁVEL</div>
 <div>UTD</div>
-<div>TEMPO</div>
+<div>DIAS</div>
 <div>ABERTURA</div>
 
 </div>
@@ -801,8 +805,8 @@ ${d.responsavel}
 ${d.utd}
 </div>
 
-<div class="horas">
-${horasDecorridas(d.data)}h
+<div class="dias">
+${diasDecorridos(d.data)}d
 </div>
 
 <div>
@@ -926,9 +930,14 @@ ${new Date(d.data).toLocaleDateString()}
 tela1.style.display="none";
 tela2.style.display="block";
 
+if(intervaloAtualizacao) clearInterval(intervaloAtualizacao);
+intervaloAtualizacao = setInterval(visualizar, 60000);
+
 }
 
 function voltar(){
+
+if(intervaloAtualizacao){ clearInterval(intervaloAtualizacao); intervaloAtualizacao=null; }
 
 tela1.style.display="block";
 tela2.style.display="none";
