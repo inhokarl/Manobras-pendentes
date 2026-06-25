@@ -445,17 +445,9 @@ render();
 
 }
 
-function gerarNumeroOcorrencia(numero, mesSelecionado){
+function gerarNumeroOcorrencia(numero){
 
-if(!mesSelecionado)
 return numero;
-
-let partes = mesSelecionado.split("-");
-
-let ano = partes[0];
-let mes = partes[1];
-
-return `${ano}_${mes}_${numero}`;
 
 }
 
