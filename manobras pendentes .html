@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Manobras Pendentes</title>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+body{
+font-family:'Segoe UI',Arial,sans-serif;
+background:#edf2f7;
+padding:8px;
+}
+
+h2{
+color:#C2410C;
+margin-bottom:15px;
+}
+
+input,
+select{
+padding:10px;
+margin:4px;
+width:170px;
+border:1px solid #d7dde5;
+border-radius:10px;
+font-size:14px;
+background:#fff;
+}
+
+button{
+padding:10px 14px;
+margin:5px;
+border:none;
+border-radius:10px;
+background:#C2410C;
+color:#fff;
+font-weight:600;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:translateY(-1px);
+}
+
+.card{
+background:#fff;
+border-radius:24px;
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+margin-top:12px;
+overflow:hidden;
+}
+
+#tela2{
+display:none;
+}
+
+#campoStatusPendencia{
+display:none;
+}
+
+#campoTratativa{
+display:none;
+}
+
+textarea{
+padding:10px;
+margin:4px;
+width:calc(100% - 8px);
+min-height:80px;
+border:1px solid #d7dde5;
+border-radius:10px;
+font-size:14px;
+background:#fff;
+font-family:'Segoe UI',Arial,sans-serif;
+resize:vertical;
+}
+
+.btnPdf{
+background:#9A3412;
+}
+
+.listaItem{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px;
+border-bottom:1px solid #eee;
+}
+
+.botoes{
+display:flex;
+gap:5px;
+}
+
+.editar{
+background:#fb8c00;
+}
+
+.excluir{
+background:#e53935;
+}
+
+.cabecalhoRelatorio{
+background:linear-gradient(
+135deg,
+#9A3412 0%,
+#C2410C 55%,
+#F59E0B 100%
+);
+
+padding:15px;
+color:white;
+}
+
+.topoFlex{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:15px;
+}
+
+.logoEsquerda{
+width:90px;
+height:90px;
+border-radius:20px;
+background:rgba(255,255,255,.15);
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:48px;
+backdrop-filter:blur(4px);
+}
+
+.tituloCentral{
+flex:1;
+}
+
+.tituloCentral h1{
+font-size:20px;
+font-weight:800;
+line-height:1.1;
+}
+
+.infoData{
+margin-top:8px;
+font-size:14px;
+opacity:.95;
+}
+
+.tabela{
+background:#fff;
+overflow:hidden;
+}
+
+.linha{
+display:grid;
+grid-template-columns:
+1.6fr
+1.3fr
+1.8fr
+1fr
+0.9fr
+1.1fr;
+
+gap:6px;
+padding:14px 6px;
+align-items:center;
+text-align:center;
+font-size:12px;
+line-height:1.3;
+border-bottom:1px solid #eef2f7;
+}
+
+.linha:not(.topoTabela) div{
+font-weight:bold;
+}
+
+.topoTabela{
+background:#C2410C;
+color:white;
+font-weight:700;
+}
+
+.statusBadge{
+padding:6px 10px;
+border-radius:20px;
+font-size:11px;
+max-width:150px;
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
+display:inline-block;
+}
+
+.respCOI{
+background:#1976D2;
+color:white;
+}
+
+.respDESEMPENHO{
+background:#00897B;
+color:white;
+}
+
+.respEXPANSAO{
+background:#8E24AA;
+color:white;
+}
+
+.respPLANEJAMENTO{
+background:#43A047;
+color:white;
+}
+
+.respUTD{
+background:#00ACC1;
+color:white;
+}
+
+.respOBRA{
+background:#F9A825;
+color:white;
+}
+
+.respSUB{
+background:#6D4C41;
+color:white;
+}
+
+.respUTEP{
+background:#E53935;
+color:white;
+}
+
+.dias{
+font-weight:bold;
+color:#e53935;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+padding:15px;
+}
+
+.cardResumo{
+background:white;
+border-left:6px solid #C2410C;
+border-radius:16px;
+padding:15px;
+box-shadow:0 3px 12px rgba(0,0,0,.06);
+display:flex;
+align-items:center;
+gap:12px;
+min-height:90px;
+}
+
+.cardIcone{
+font-size:28px;
+}
+
+.cardTexto span{
+display:block;
+font-size:12px;
+font-weight:600;
+color:#666;
+}
+
+.cardTexto strong{
+font-size:28px;
+color:#C2410C;
+}
+
+.rodape{
+background:#9A3412;
+color:white;
+text-align:center;
+padding:16px;
+font-weight:700;
+font-size:16px;
+}
+
+@media(min-width:700px){
+
+.cards{
+grid-template-columns:repeat(4,1fr);
+}
+
+.linha{
+font-size:15px;
+}
+
+}
+
+.cardResumo:nth-child(1){
+border-left-color:#9A3412;
+}
+
+.cardResumo:nth-child(2){
+border-left-color:#1976D2;
+}
+
+.cardResumo:nth-child(3){
+border-left-color:#00897B;
+}
+
+.cardResumo:nth-child(4){
+border-left-color:#8E24AA;
+}
+
+.cardResumo:nth-child(5){
+border-left-color:#43A047;
+}
+
+.cardResumo:nth-child(6){
+border-left-color:#6D4C41;
+}
+
+.cardResumo:nth-child(7){
+border-left-color:#E53935;
+}
+
+.cardResumo:nth-child(8){
+border-left-color:#FB8C00;
+}
+
+.cardResumo:nth-child(9){
+border-left-color:#F4511E;
+}
+
+.cardResumo:nth-child(10){
+border-left-color:#FBC02D;
+}
+
+.cardResumo:nth-child(11){
+border-left-color:#FFB300;
+}
+
+.cardResumo:nth-child(12){
+border-left-color:#FF7043;
+}
+
+.cardResumo:nth-child(13){
+border-left-color:#00ACC1;
+}
+
+.cardResumo:nth-child(14){
+border-left-color:#F9A825;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="tela1">
+
+<h2>Cadastro</h2>
+
+<input id="oc_id" placeholder="Ocorrência">
+
+<input id="alimentador" placeholder="Alimentador">
+
+<select id="responsavel" onchange="toggleStatusPendencia()">
+
+<option value="">Responsável</option>
+<option>COI</option>
+<option>DESEMPENHO</option>
+<option>EXPANSÃO AT</option>
+<option>PLANEJAMENTO</option>
+<option>SUB TRANSMISSÃO</option>
+<option>UTEP</option>
+<option>UTD</option>
+<option>OBRA</option>
+
+</select>
+
+<span id="campoStatusPendencia">
+
+<select id="statusPendencia">
+
+<option value="">Status</option>
+<option>PENDÊNCIA DE OBRA</option>
+<option>PENDÊNCIA DA UTD</option>
+<option>PENDÊNCIA DIVERSAS</option>
+<option>PENDÊNCIA LV</option>
+<option>PENDÊNCIA LV+TP</option>
+
+</select>
+
+</span>
+
+<span id="campoTratativa">
+
+<br>
+
+<label>Tratativa:</label>
+
+<textarea id="tratativa" placeholder="Descreva a tratativa desta pendência..."></textarea>
+
+</span>
+
+<select id="utd">
+<option>GOIANA</option>
+<option>PAULISTA</option>
+<option>CAMARAGIBE</option>
+<option>TIMBAÚBA</option>
+<option>CARPINA</option>
+</select>
+
+<br>
+
+<label>Mês:</label>
+<input id="mesOc" type="month">
+
+<br>
+
+<label>Data/Hora:</label>
+<input id="dataOc" type="datetime-local">
+
+<br>
+
+<button id="btnAdd" onclick="add()">Adicionar</button>
+
+<button onclick="limpar()">Limpar Tudo</button>
+
+<button onclick="visualizar()">Visualizar</button>
+
+<div id="lista" class="card"></div>
+
+</div>
+
+<div id="tela2">
+
+<button onclick="voltar()">Voltar</button>
+
+<button onclick="gerar()">Gerar Imagem</button>
+
+<button class="btnPdf" onclick="gerarPDF()">Gerar PDF</button>
+
+<div id="relatorio" class="card"></div>
+
+</div>
+
+<script>
+
+let dados=[];
+let editIndex=null;
+
+const oc_id = document.getElementById("oc_id");
+
+function gerarId(){
+
+return Date.now() + "_" +
+Math.random().toString(36).substring(2,8);
+
+}
+
+function salvarLocal(){
+
+localStorage.setItem(
+"dadosManobrasPendentes",
+JSON.stringify(dados)
+);
+
+}
+
+function carregarLocal(){
+
+let salvo =
+localStorage.getItem(
+"dadosManobrasPendentes"
+);
+
+if(salvo){
+
+dados = JSON.parse(salvo);
+
+render();
+
+}
+
+}
+
+function gerarNumeroOcorrencia(numero, mesSelecionado){
+
+if(!mesSelecionado)
+return numero;
+
+let partes = mesSelecionado.split("-");
+
+let ano = partes[0];
+let mes = partes[1];
+
+return `${ano}_${mes}_${numero}`;
+
+}
+
+function toggleStatusPendencia(){
+
+if(responsavel.value=="UTEP"){
+
+campoStatusPendencia.style.display="inline-block";
+campoTratativa.style.display="block";
+
+}else{
+
+campoStatusPendencia.style.display="none";
+campoTratativa.style.display="none";
+
+statusPendencia.value="";
+tratativa.value="";
+
+}
+
+}
+
+function classeResponsavel(resp){
+
+if(resp=="COI") return "respCOI";
+if(resp=="DESEMPENHO") return "respDESEMPENHO";
+if(resp=="EXPANSÃO AT") return "respEXPANSAO";
+if(resp=="PLANEJAMENTO") return "respPLANEJAMENTO";
+if(resp=="SUB TRANSMISSÃO") return "respSUB";
+if(resp=="UTEP") return "respUTEP";
+if(resp=="UTD") return "respUTD";
+if(resp=="OBRA") return "respOBRA";
+
+return "";
+
+}
+
+async function add(){
+
+if(!oc_id.value || !alimentador.value || !responsavel.value || !dataOc.value)
+return alert("Preencha tudo");
+
+if(responsavel.value=="UTEP" && !statusPendencia.value)
+return alert("Selecione o status da pendência");
+
+let idAtual="";
+
+if(editIndex===null){
+
+idAtual=gerarId();
+
+}else{
+
+idAtual=
+dados[editIndex].id || gerarId();
+
+}
+
+let item={
+
+id:idAtual,
+oc:oc_id.value,
+alimentador:alimentador.value,
+responsavel:responsavel.value,
+
+statusPendencia:
+responsavel.value=="UTEP" ? statusPendencia.value : "",
+
+tratativa:
+responsavel.value=="UTEP" ? tratativa.value : "",
+
+utd:utd.value,
+
+data:
+dataOc.value ||
+dados[editIndex]?.data || "",
+
+mes:
+mesOc.value ||
+dados[editIndex]?.mes || ""
+
+};
+
+if(editIndex===null){
+
+dados.push(item);
+
+}else{
+
+dados[editIndex]=item;
+
+editIndex=null;
+
+btnAdd.innerText="Adicionar";
+
+}
+
+salvarLocal();
+
+render();
+
+limparCampos();
+
+}
+
+function editar(i){
+
+let d = dados[i];
+
+oc_id.value = d.oc || "";
+alimentador.value = d.alimentador || "";
+responsavel.value = d.responsavel || "";
+
+toggleStatusPendencia();
+
+statusPendencia.value = d.statusPendencia || "";
+tratativa.value = d.tratativa || "";
+
+utd.value = d.utd || "GOIANA";
+mesOc.value = d.mes || "";
+
+if(d.data){
+
+const data = new Date(d.data);
+
+const ano = data.getFullYear();
+const mes = String(data.getMonth()+1).padStart(2,"0");
+const dia = String(data.getDate()).padStart(2,"0");
+const hora = String(data.getHours()).padStart(2,"0");
+const minuto = String(data.getMinutes()).padStart(2,"0");
+
+dataOc.value =
+`${ano}-${mes}-${dia}T${hora}:${minuto}`;
+
+}else{
+
+dataOc.value="";
+
+}
+
+editIndex = i;
+
+btnAdd.innerText = "Atualizar";
+
+}
+
+function limparCampos(){
+
+oc_id.value="";
+alimentador.value="";
+dataOc.value="";
+mesOc.value="";
+
+}
+
+function limpar(){
+
+if(!confirm("Apagar tudo?")) return;
+
+dados=[];
+
+salvarLocal();
+
+render();
+
+}
+
+function excluir(i){
+
+dados.splice(i,1);
+
+salvarLocal();
+
+render();
+
+}
+
+function diasDecorridos(data){
+
+let inicio=new Date(data);
+inicio.setHours(0,0,0,0);
+
+let agora=new Date();
+agora.setHours(0,0,0,0);
+
+let diff=Math.floor((agora-inicio)/(1000*60*60*24));
+
+return diff;
+
+}
+
+function ordenar(lista){
+
+let ordem={
+"COI":1,
+"DESEMPENHO":2,
+"EXPANSÃO AT":3,
+"PLANEJAMENTO":4,
+"SUB TRANSMISSÃO":5,
+"UTEP":6,
+"UTD":7,
+"OBRA":8
+};
+
+return lista.sort((a,b)=>{
+
+return (ordem[a.responsavel]||99) - (ordem[b.responsavel]||99);
+
+});
+
+}
+
+function render(){
+
+lista.innerHTML=dados.map((d,i)=>`
+
+<div class="listaItem">
+
+<div>
+
+<b>${gerarNumeroOcorrencia(d.oc,d.mes)}</b>
+
+<br>
+
+${d.alimentador} • ${d.responsavel}
+
+</div>
+
+<div class="botoes">
+
+<button class="editar"
+onclick="editar(${i})">
+
+Editar
+
+</button>
+
+<button class="excluir"
+onclick="excluir(${i})">
+
+X
+
+</button>
+
+</div>
+
+</div>
+
+`).join('');
+
+}
+
+let intervaloAtualizacao = null;
+
+function visualizar(){
+
+let listaOrdenada=ordenar([...dados]);
+
+let totalOc=listaOrdenada.length;
+
+let respCount={
+"COI":0,
+"DESEMPENHO":0,
+"EXPANSÃO AT":0,
+"PLANEJAMENTO":0,
+"SUB TRANSMISSÃO":0,
+"UTEP":0,
+"UTD":0,
+"OBRA":0
+};
+
+let statusPendCount={
+"PENDÊNCIA DE OBRA":0,
+"PENDÊNCIA DA UTD":0,
+"PENDÊNCIA DIVERSAS":0,
+"PENDÊNCIA LV":0,
+"PENDÊNCIA LV+TP":0
+};
+
+listaOrdenada.forEach(d=>{
+
+if(respCount[d.responsavel]!==undefined){
+respCount[d.responsavel]++;
+}
+
+if(d.responsavel=="UTEP" && statusPendCount[d.statusPendencia]!==undefined){
+statusPendCount[d.statusPendencia]++;
+}
+
+if(d.responsavel=="UTD"){
+statusPendCount["PENDÊNCIA DA UTD"]++;
+}
+
+if(d.responsavel=="OBRA"){
+statusPendCount["PENDÊNCIA DE OBRA"]++;
+}
+
+});
+
+relatorio.innerHTML=`
+
+<div class="cabecalhoRelatorio">
+
+<div class="topoFlex">
+
+<div class="logoEsquerda">
+⚡
+</div>
+
+<div class="tituloCentral">
+
+<h1>
+SETOR NORTE
+<br>
+MANOBRAS PENDENTES
+</h1>
+
+<div class="infoData">
+
+📅 ${new Date().toLocaleDateString('pt-BR')}
+&nbsp;&nbsp;&nbsp;
+🕒 ${new Date().toLocaleTimeString('pt-BR')}
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="tabela">
+
+<div class="linha topoTabela">
+
+<div>OC_ID</div>
+<div>ALIMENTADOR</div>
+<div>RESPONSÁVEL</div>
+<div>UTD</div>
+<div>DIAS</div>
+<div>ABERTURA</div>
+
+</div>
+
+${listaOrdenada.map(d=>`
+
+<div class="linha">
+
+<div>
+${gerarNumeroOcorrencia(d.oc,d.mes)}
+</div>
+
+<div>
+${d.alimentador}
+</div>
+
+<div>
+
+<span class="statusBadge ${classeResponsavel(d.responsavel)}">
+
+${d.responsavel}
+
+</span>
+
+</div>
+
+<div>
+${d.utd}
+</div>
+
+<div class="dias">
+${diasDecorridos(d.data)}d
+</div>
+
+<div>
+${new Date(d.data).toLocaleDateString()}
+</div>
+
+</div>
+
+`).join("")}
+
+</div>
+
+<div class="cards">
+
+<div class="cardResumo">
+<div class="cardIcone">📋</div>
+<div class="cardTexto">
+<span>Total OCs</span>
+<strong>${totalOc}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🛰️</div>
+<div class="cardTexto">
+<span>COI</span>
+<strong>${respCount["COI"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">📈</div>
+<div class="cardTexto">
+<span>Desempenho</span>
+<strong>${respCount["DESEMPENHO"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🏗️</div>
+<div class="cardTexto">
+<span>Expansão AT</span>
+<strong>${respCount["EXPANSÃO AT"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🗒️</div>
+<div class="cardTexto">
+<span>Planejamento</span>
+<strong>${respCount["PLANEJAMENTO"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🔌</div>
+<div class="cardTexto">
+<span>Sub Transmissão</span>
+<strong>${respCount["SUB TRANSMISSÃO"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🚧</div>
+<div class="cardTexto">
+<span>UTEP</span>
+<strong>${respCount["UTEP"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🏗️</div>
+<div class="cardTexto">
+<span>Pendência de Obra</span>
+<strong>${statusPendCount["PENDÊNCIA DE OBRA"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🏭</div>
+<div class="cardTexto">
+<span>Pendência da UTD</span>
+<strong>${statusPendCount["PENDÊNCIA DA UTD"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">📌</div>
+<div class="cardTexto">
+<span>Pendência Diversas</span>
+<strong>${statusPendCount["PENDÊNCIA DIVERSAS"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">⚡</div>
+<div class="cardTexto">
+<span>Pendência LV</span>
+<strong>${statusPendCount["PENDÊNCIA LV"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🔧</div>
+<div class="cardTexto">
+<span>Pendência LV+TP</span>
+<strong>${statusPendCount["PENDÊNCIA LV+TP"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🏘️</div>
+<div class="cardTexto">
+<span>UTD</span>
+<strong>${respCount["UTD"]}</strong>
+</div>
+</div>
+
+<div class="cardResumo">
+<div class="cardIcone">🏭</div>
+<div class="cardTexto">
+<span>Obra</span>
+<strong>${respCount["OBRA"]}</strong>
+</div>
+</div>
+
+</div>
+
+<div class="rodape">
+
+⚡ MANUTENÇÃO UTEP NORTE ⚡
+
+</div>
+
+`;
+
+tela1.style.display="none";
+tela2.style.display="block";
+
+if(intervaloAtualizacao) clearInterval(intervaloAtualizacao);
+intervaloAtualizacao = setInterval(visualizar, 60000);
+
+}
+
+function voltar(){
+
+if(intervaloAtualizacao){ clearInterval(intervaloAtualizacao); intervaloAtualizacao=null; }
+
+tela1.style.display="block";
+tela2.style.display="none";
+
+}
+
+function gerar(){
+
+window.scrollTo(0,0);
+
+html2canvas(relatorio,{
+scale:4,
+backgroundColor:"#ffffff",
+useCORS:true,
+allowTaint:true,
+logging:false
+}).then(canvas=>{
+
+let link=document.createElement('a');
+
+link.download="relatorio_manobras_pendentes.png";
+
+link.href=canvas.toDataURL("image/png");
+
+link.click();
+
+});
+
+}
+
+function gerarPDF(){
+
+const { jsPDF } = window.jspdf;
+
+const doc = new jsPDF({ unit:"mm", format:"a4" });
+
+const larguraPagina = doc.internal.pageSize.getWidth();
+const alturaPagina = doc.internal.pageSize.getHeight();
+
+const corPrimaria = [194,65,12];
+const corEscura = [154,52,18];
+const corClara = [245,158,11];
+
+const listaOrdenada = ordenar([...dados]);
+
+// ===== CABEÇALHO COM DEGRADÊ =====
+const alturaCabecalho = 28;
+const faixas = 60;
+
+for(let i=0;i<faixas;i++){
+
+let t = i/(faixas-1);
+
+let r,g,b;
+
+if(t<=0.55){
+
+let t2 = t/0.55;
+
+r = corEscura[0] + (corPrimaria[0]-corEscura[0])*t2;
+g = corEscura[1] + (corPrimaria[1]-corEscura[1])*t2;
+b = corEscura[2] + (corPrimaria[2]-corEscura[2])*t2;
+
+}else{
+
+let t2 = (t-0.55)/0.45;
+
+r = corPrimaria[0] + (corClara[0]-corPrimaria[0])*t2;
+g = corPrimaria[1] + (corClara[1]-corPrimaria[1])*t2;
+b = corPrimaria[2] + (corClara[2]-corPrimaria[2])*t2;
+
+}
+
+doc.setFillColor(r,g,b);
+
+doc.rect(
+(larguraPagina/faixas)*i,
+0,
+(larguraPagina/faixas)+0.5,
+alturaCabecalho,
+"F"
+);
+
+}
+
+doc.setFillColor(255,255,255,0.15);
+doc.circle(20,14,9,"F");
+
+doc.setTextColor(255,255,255);
+doc.setFontSize(16);
+doc.setFont(undefined,"bold");
+doc.text("⚡",16.5,17);
+
+doc.setFontSize(15);
+doc.text("SETOR NORTE - MANOBRAS PENDENTES",36,12);
+
+doc.setFontSize(9);
+doc.setFont(undefined,"normal");
+
+const agora = new Date();
+
+doc.text(
+`Data: ${agora.toLocaleDateString('pt-BR')}    Hora: ${agora.toLocaleTimeString('pt-BR')}`,
+36,19
+);
+
+// ===== TABELA PRINCIPAL =====
+const linhasTabela = listaOrdenada.map(d=>[
+gerarNumeroOcorrencia(d.oc,d.mes),
+d.alimentador,
+d.responsavel,
+d.utd,
+diasDecorridos(d.data)+"d",
+new Date(d.data).toLocaleDateString('pt-BR')
+]);
+
+doc.autoTable({
+
+startY: alturaCabecalho+6,
+head: [["OC_ID","ALIMENTADOR","RESPONSÁVEL","UTD","DIAS","ABERTURA"]],
+body: linhasTabela,
+
+theme:"grid",
+
+headStyles:{
+fillColor: corPrimaria,
+textColor:255,
+fontStyle:"bold",
+halign:"center"
+},
+
+bodyStyles:{
+halign:"center",
+fontSize:9
+},
+
+alternateRowStyles:{
+fillColor:[253,246,240]
+},
+
+margin:{left:10,right:10}
+
+});
+
+// ===== RESUMO (CARDS) =====
+let respCount={
+"COI":0,"DESEMPENHO":0,"EXPANSÃO AT":0,
+"PLANEJAMENTO":0,"SUB TRANSMISSÃO":0,"UTEP":0,
+"UTD":0,"OBRA":0
+};
+
+let statusPendCount={
+"PENDÊNCIA DE OBRA":0,"PENDÊNCIA DA UTD":0,"PENDÊNCIA DIVERSAS":0,
+"PENDÊNCIA LV":0,"PENDÊNCIA LV+TP":0
+};
+
+listaOrdenada.forEach(d=>{
+
+if(respCount[d.responsavel]!==undefined) respCount[d.responsavel]++;
+
+if(d.responsavel=="UTEP" && statusPendCount[d.statusPendencia]!==undefined)
+statusPendCount[d.statusPendencia]++;
+
+if(d.responsavel=="UTD")
+statusPendCount["PENDÊNCIA DA UTD"]++;
+
+if(d.responsavel=="OBRA")
+statusPendCount["PENDÊNCIA DE OBRA"]++;
+
+});
+
+let resumoLinhas=[
+["Total OCs", listaOrdenada.length],
+["COI", respCount["COI"]],
+["Desempenho", respCount["DESEMPENHO"]],
+["Expansão AT", respCount["EXPANSÃO AT"]],
+["Planejamento", respCount["PLANEJAMENTO"]],
+["Sub Transmissão", respCount["SUB TRANSMISSÃO"]],
+["UTEP", respCount["UTEP"]],
+["UTD", respCount["UTD"]],
+["Obra", respCount["OBRA"]],
+["Pendência de Obra", statusPendCount["PENDÊNCIA DE OBRA"]],
+["Pendência da UTD", statusPendCount["PENDÊNCIA DA UTD"]],
+["Pendência Diversas", statusPendCount["PENDÊNCIA DIVERSAS"]],
+["Pendência LV", statusPendCount["PENDÊNCIA LV"]],
+["Pendência LV+TP", statusPendCount["PENDÊNCIA LV+TP"]]
+];
+
+doc.autoTable({
+
+startY: doc.lastAutoTable.finalY+6,
+head:[["RESUMO","QTD"]],
+body: resumoLinhas,
+
+theme:"grid",
+
+headStyles:{
+fillColor: corEscura,
+textColor:255,
+fontStyle:"bold",
+halign:"center"
+},
+
+bodyStyles:{
+fontSize:9
+},
+
+columnStyles:{
+1:{halign:"center",fontStyle:"bold",textColor:corPrimaria}
+},
+
+margin:{left:10,right:10},
+
+tableWidth:90
+
+});
+
+// ===== TRATATIVAS (SOMENTE NO PDF) =====
+const itensComTratativa = listaOrdenada.filter(
+d => d.responsavel=="UTEP" && d.tratativa && d.tratativa.trim()!==""
+);
+
+if(itensComTratativa.length>0){
+
+let y = doc.lastAutoTable.finalY+10;
+
+if(y > alturaPagina-30){
+doc.addPage();
+y = 20;
+}
+
+doc.setFillColor(...corPrimaria);
+doc.rect(10,y-6,larguraPagina-20,8,"F");
+
+doc.setTextColor(255,255,255);
+doc.setFontSize(11);
+doc.setFont(undefined,"bold");
+doc.text("TRATATIVAS - UTEP",14,y-0.5);
+
+y += 8;
+
+doc.setTextColor(40,40,40);
+
+itensComTratativa.forEach(d=>{
+
+const tituloItem = `${gerarNumeroOcorrencia(d.oc,d.mes)} • ${d.alimentador}${d.statusPendencia ? " • "+d.statusPendencia : ""}`;
+
+const textoTratativa = doc.splitTextToSize(d.tratativa,larguraPagina-24);
+
+const alturaBloco = 6 + (textoTratativa.length*4.5) + 4;
+
+if(y + alturaBloco > alturaPagina-20){
+doc.addPage();
+y = 20;
+}
+
+doc.setFontSize(9.5);
+doc.setFont(undefined,"bold");
+doc.setTextColor(...corPrimaria);
+doc.text(tituloItem,14,y);
+
+y += 5;
+
+doc.setFontSize(9);
+doc.setFont(undefined,"normal");
+doc.setTextColor(60,60,60);
+doc.text(textoTratativa,14,y);
+
+y += (textoTratativa.length*4.5) + 5;
+
+doc.setDrawColor(230,230,230);
+doc.line(10,y-2,larguraPagina-10,y-2);
+
+y += 3;
+
+});
+
+}
+
+// ===== RODAPÉ EM TODAS AS PÁGINAS =====
+const totalPaginas = doc.internal.getNumberOfPages();
+
+for(let p=1;p<=totalPaginas;p++){
+
+doc.setPage(p);
+
+doc.setFillColor(...corEscura);
+doc.rect(0,alturaPagina-12,larguraPagina,12,"F");
+
+doc.setTextColor(255,255,255);
+doc.setFontSize(9);
+doc.setFont(undefined,"bold");
+
+doc.text(
+"⚡ MANUTENÇÃO UTEP NORTE ⚡",
+larguraPagina/2,
+alturaPagina-5,
+{align:"center"}
+);
+
+doc.setFontSize(8);
+doc.setFont(undefined,"normal");
+
+doc.text(
+`Página ${p} de ${totalPaginas}`,
+larguraPagina-14,
+alturaPagina-5,
+{align:"right"}
+);
+
+}
+
+doc.save("relatorio_manobras_pendentes.pdf");
+
+}
+
+carregarLocal();
+
+</script>
+
+</body>
+
+</html>
